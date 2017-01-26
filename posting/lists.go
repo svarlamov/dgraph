@@ -47,6 +47,7 @@ var (
 
 	dirtyChan       chan uint64 // All dirty posting list keys are pushed here.
 	startCommitOnce sync.Once
+	memprofile      = flag.String("mem", "dgraphmem.txt", "File to which write the memory usage to")
 )
 
 type counters struct {
@@ -167,7 +168,7 @@ func periodicCommit() {
 				log.Printf("Dirty map size: %d\n", dsize)
 			}
 
-			totMemory := getMemUsage()
+			totMemory := getMemUsage().golang
 			if totMemory <= *maxmemory {
 				gentleCommit(dirtyMap, pending)
 				break
@@ -197,12 +198,18 @@ func periodicCommit() {
 	}
 }
 
+type usage struct {
+	golang  int
+	process int
+}
+
 // getMemUsage returns the amount of memory used by the process in MB
-func getMemUsage() int {
+func getMemUsage() usage {
+	var u usage
 	var ms runtime.MemStats
 	runtime.ReadMemStats(&ms)
 	megs := ms.Alloc / (1 << 20)
-	return int(megs)
+	u.golang = int(megs)
 
 	// Sticking to ms.Alloc temoprarily.
 	// TODO(Ashwin): Switch to total Memory(RSS) once we figure out
@@ -217,23 +224,25 @@ func getMemUsage() int {
 			var ms runtime.MemStats
 			runtime.ReadMemStats(&ms)
 			megs := ms.Alloc / (1 << 20)
-			return int(megs)
+			u.process = int(megs)
+			return u
 		}
 
 		rss := strings.Split(string(c1), " ")[0]
 		kbs, err := strconv.Atoi(rss)
 		if err != nil {
-			return 0
+			return u
 		}
 
 		megs := kbs / (1 << 10)
-		return megs
+		u.process = megs
+		return u
 	}
 
 	contents, err := ioutil.ReadFile("/proc/self/stat")
 	if err != nil {
 		log.Println("Can't read the proc file", err)
-		return 0
+		return u
 	}
 
 	cont := strings.Split(string(contents), " ")
@@ -241,16 +250,17 @@ func getMemUsage() int {
 	// used by the process.
 	if len(cont) < 24 {
 		log.Println("Error in RSS from stat")
-		return 0
+		return u
 	}
 
 	rss, err := strconv.Atoi(cont[23])
 	if err != nil {
 		log.Println(err)
-		return 0
+		return u
 	}
 
-	return rss * os.Getpagesize() / (1 << 20)
+	u.process = rss * os.Getpagesize() / (1 << 20)
+	return u
 }
 
 var (
@@ -276,6 +286,21 @@ func Init(ps *store.Store) {
 	dirtyChan = make(chan uint64, 10000)
 	StartCommit()
 	go periodicCommit()
+
+	go func() {
+		f, err := os.OpenFile(*memprofile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+		if err != nil {
+			fmt.Println("while opening file", err)
+		}
+		t := time.NewTicker(5 * time.Second)
+		for _ = range t.C {
+			u := getMemUsage()
+			_, err := f.WriteString(fmt.Sprintf("%v: Process - %v, Go - %v, Difference - %v\n", time.Now().UTC(), u.process, u.golang, u.process-u.golang))
+			if err != nil {
+				fmt.Println("while writing", err)
+			}
+		}
+	}()
 }
 
 func getFromMap(key uint64) *List {

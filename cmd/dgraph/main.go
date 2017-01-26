@@ -67,7 +67,6 @@ var (
 	tracing      = flag.Float64("trace", 0.5, "The ratio of queries to trace.")
 	schemaFile   = flag.String("schema", "", "Path to schema file")
 	cpuprofile   = flag.String("cpu", "", "write cpu profile to file")
-	memprofile   = flag.String("mem", "", "write memory profile to file")
 	dumpSubgraph = flag.String("dumpsg", "", "Directory to save subgraph for testing, debugging")
 
 	closeCh        = make(chan struct{})
@@ -87,15 +86,6 @@ func exitWithProfiles() {
 		pprof.StopCPUProfile()
 	}
 
-	// Write memory profile before exit.
-	if len(*memprofile) > 0 {
-		f, err := os.Create(*memprofile)
-		if err != nil {
-			log.Println(err)
-		}
-		pprof.WriteHeapProfile(f)
-		f.Close()
-	}
 	// To exit the server after the response is returned.
 	closeCh <- struct{}{}
 }
