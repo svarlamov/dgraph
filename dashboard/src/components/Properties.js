@@ -21,16 +21,6 @@ class Properties extends Component {
                     ? <span>Edge Attributes:</span>
                     : <div>
                           <span>Node Attributes:</span>
-                          <Button
-                              title="Add uid to scratchpad"
-                              style={{ marginLeft: "5px" }}
-                              bsSize="xsmall"
-                              onClick={() => {
-                                  this.props.addEntry(uid, name);
-                              }}
-                          >
-                              <Glyphicon glyph="save" />
-                          </Button>
                       </div>}
                 {!isEdge &&
                     <div>

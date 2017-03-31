@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import screenfull from "screenfull";
 
-import ScratchpadContainer from "../containers/ScratchpadContainer";
 import NavBar from "../components/Navbar";
 import PreviousQueryListContainer from "./PreviousQueryListContainer";
 import Editor from "./Editor";
@@ -32,7 +31,6 @@ class App extends React.Component {
             <div className="col-sm-12">
               <div className="col-sm-5">
                 <Editor />
-                <ScratchpadContainer />
                 <PreviousQueryListContainer xs="hidden-xs" />
               </div>
               <div className="col-sm-7">
