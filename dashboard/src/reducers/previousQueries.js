@@ -1,3 +1,6 @@
+import { REHYDRATE } from "redux-persist/constants";
+import storedQueries from "../data/queries.js";
+
 const query = (state, action) => {
     switch (action.type) {
         case "ADD_QUERY":
@@ -25,6 +28,14 @@ const queries = (state = [], action) => {
             ];
         case "DELETE_ALL_QUERIES":
             return [];
+        case REHYDRATE:
+            var payload = action.payload.previousQueries;
+            if (!payload || payload.previousQueries.length === 0)
+                return {
+                    ...state,
+                    storedQueries
+                };
+            return state;
         default:
             return state;
     }

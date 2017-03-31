@@ -9,7 +9,11 @@ class NavBar extends Component {
             <Navbar style={{ borderBottom: "0.5px solid gray" }} fluid={true}>
                 <Navbar.Header>
                     <Navbar.Brand>
-                        <a href="#" style={{ paddingTop: "10px" }}>
+                        <a
+                            href="https://dgraph.io"
+                            target="blank"
+                            style={{ paddingTop: "10px" }}
+                        >
                             <img src={logo} width="100" height="30" alt="" />
                         </a>
                     </Navbar.Brand>
