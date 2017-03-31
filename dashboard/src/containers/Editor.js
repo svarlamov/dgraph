@@ -67,6 +67,7 @@ class Editor extends Component {
   componentWillReceiveProps = nextProps => {
     if (nextProps.query !== this.getValue()) {
       this.editor.setValue(nextProps.query);
+      this.props.onRunQuery(nextProps.query);
     }
   };
 

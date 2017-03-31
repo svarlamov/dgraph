@@ -9,7 +9,8 @@ import {
 } from "../actions";
 
 const mapStateToProps = state => ({
-    queries: state.previousQueries
+    queries: state.previousQueries,
+    query: state.query.text
 });
 
 const mapDispatchToProps = dispatch => ({

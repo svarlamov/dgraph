@@ -27,7 +27,7 @@ class PreviousQueryList extends Component {
         return (
             <div className={`App-prev-queries ${this.props.xs}`}>
                 <div style={{ marginBottom: "5px" }}>
-                    <span><b>Choose a query</b></span>
+                    <span><b>Click to run</b></span>
                 </div>
                 <InputGroup bsSize="sm">
                     <FormControl
@@ -57,6 +57,7 @@ class PreviousQueryList extends Component {
                             return (
                                 <PreviousQuery
                                     text={query.text}
+                                    query={this.props.query}
                                     desc={query.desc}
                                     lastRun={query.lastRun}
                                     key={this.props.xs + i}

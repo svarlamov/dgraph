@@ -113,7 +113,9 @@ class PreviousQuery extends Component {
               className="Previous-query-pre"
               onClick={() => {
                 this.props.select(this.props.text, this.props.desc);
-                this.props.resetResponse();
+                if (this.props.query !== this.props.text) {
+                  this.props.resetResponse();
+                }
                 window.scrollTo(0, 0);
               }}
               data-query={this.props.text}

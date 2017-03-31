@@ -73,7 +73,6 @@ export const updateLatency = obj => ({
 
 export const renderGraph = (query, result, treeView) => {
     return (dispatch, getState) => {
-        console.log(getState().query);
         let [nodes, edges, labels, nodesIdx, edgesIdx] = processGraph(
             result,
             treeView,
