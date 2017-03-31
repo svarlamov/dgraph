@@ -13,8 +13,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    selectQuery: text => {
-        dispatch(selectQuery(text));
+    selectQuery: (text, desc) => {
+        dispatch(selectQuery(text, desc));
     },
     deleteQuery: idx => {
         dispatch(deleteQuery(idx));

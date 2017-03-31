@@ -258,7 +258,7 @@ class Editor extends Component {
     };
 
     this.editor.on("change", cm => {
-      this.props.updateQuery(this.editor.getValue());
+      this.props.updateQuery(this.editor.getValue(), "");
     });
 
     this.editor.on("keydown", function(cm, event) {

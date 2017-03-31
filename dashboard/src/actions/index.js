@@ -14,9 +14,10 @@ export const updatePartial = partial => ({
     partial
 });
 
-export const selectQuery = text => ({
+export const selectQuery = (text, desc) => ({
     type: "SELECT_QUERY",
-    text
+    text,
+    desc
 });
 
 export const deleteQuery = idx => ({
@@ -33,9 +34,10 @@ export const setCurrentNode = node => ({
     node
 });
 
-const addQuery = text => ({
+const addQuery = (text, desc) => ({
     type: "ADD_QUERY",
-    text
+    text,
+    desc
 });
 
 const isFetching = () => ({
@@ -71,6 +73,7 @@ export const updateLatency = obj => ({
 
 export const renderGraph = (query, result, treeView) => {
     return (dispatch, getState) => {
+        console.log(getState().query);
         let [nodes, edges, labels, nodesIdx, edgesIdx] = processGraph(
             result,
             treeView,

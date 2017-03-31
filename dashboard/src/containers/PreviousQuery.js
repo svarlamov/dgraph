@@ -112,13 +112,15 @@ class PreviousQuery extends Component {
             <pre
               className="Previous-query-pre"
               onClick={() => {
-                this.props.select(this.props.text);
+                this.props.select(this.props.text, this.props.desc);
                 this.props.resetResponse();
                 window.scrollTo(0, 0);
               }}
               data-query={this.props.text}
             >
-              {getQueryStructure(prettifyQuery(this.props.text))}
+              {this.props.desc !== ""
+                ? this.props.desc
+                : getQueryStructure(prettifyQuery(this.props.text))}
             </pre>
           </OverlayTrigger>
         </td>

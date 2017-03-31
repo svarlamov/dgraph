@@ -6,7 +6,8 @@ const query = (state, action) => {
         case "ADD_QUERY":
             return {
                 text: action.text,
-                lastRun: Date.now()
+                lastRun: Date.now(),
+                desc: action.desc ? action.desc : ""
             };
         default:
             return state;
@@ -17,6 +18,11 @@ const queries = (state = [], action) => {
     switch (action.type) {
         case "ADD_QUERY":
             let trimmedQuery = action.text.trim();
+            for (let i = 0; i < storedQueries.length; i++) {
+                if (storedQueries[i].text === action.text.trim()) {
+                    action.desc = storedQueries[i].desc;
+                }
+            }
             return [
                 query(undefined, action),
                 ...state.filter(q => q.text.trim() !== trimmedQuery)
@@ -29,12 +35,8 @@ const queries = (state = [], action) => {
         case "DELETE_ALL_QUERIES":
             return [];
         case REHYDRATE:
-            var payload = action.payload.previousQueries;
-            if (!payload || payload.previousQueries.length === 0)
-                return {
-                    ...state,
-                    storedQueries
-                };
+            var incoming = action.payload.previousQueries;
+            if (!incoming || incoming.length === 0) return storedQueries;
             return state;
         default:
             return state;
