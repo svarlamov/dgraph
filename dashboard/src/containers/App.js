@@ -32,8 +32,8 @@ class App extends React.Component {
             <div className="col-sm-12">
               <div className="col-sm-5">
                 <Editor />
-                <PreviousQueryListContainer xs="hidden-xs" />
                 <ScratchpadContainer />
+                <PreviousQueryListContainer xs="hidden-xs" />
               </div>
               <div className="col-sm-7">
                 <label style={{ marginLeft: "5px" }}> Response </label>
