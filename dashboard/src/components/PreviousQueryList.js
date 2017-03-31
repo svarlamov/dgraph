@@ -27,7 +27,7 @@ class PreviousQueryList extends Component {
         return (
             <div className={`App-prev-queries ${this.props.xs}`}>
                 <div style={{ marginBottom: "5px" }}>
-                    <span><b>Click to run</b></span>
+                    <span><b>Choose a query</b></span>
                 </div>
                 <InputGroup bsSize="sm">
                     <FormControl
