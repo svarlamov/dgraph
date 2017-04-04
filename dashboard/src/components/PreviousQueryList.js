@@ -59,7 +59,6 @@ class PreviousQueryList extends Component {
                                     text={query.text}
                                     query={this.props.query}
                                     desc={query.desc}
-                                    lastRun={query.lastRun}
                                     key={this.props.xs + i}
                                     idx={i}
                                     select={this.props.selectQuery}

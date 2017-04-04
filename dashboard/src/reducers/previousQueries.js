@@ -6,7 +6,6 @@ const query = (state, action) => {
         case "ADD_QUERY":
             return {
                 text: action.text,
-                lastRun: Date.now(),
                 desc: action.desc ? action.desc : ""
             };
         default:

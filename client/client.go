@@ -76,8 +76,9 @@ func checkNQuad(nq graphp.NQuad) error {
 // req.SetQuery("{ me(_xid_: alice) { name falls.in } }")
 // resp, err := c.Query(context.Background(), req.Request())
 // Check response and handle errors
-func (req *Req) SetQuery(q string) {
+func (req *Req) SetQuery(q string, vars map[string]string) {
 	req.gr.Query = q
+	req.gr.Vars = vars
 }
 
 func (req *Req) addMutation(nq graphp.NQuad, op Op) {
@@ -256,7 +257,7 @@ LOOP:
 	batch.wg.Done()
 }
 
-func NewBatchMutation(ctx context.Context, conn *grpc.ClientConn,
+func NewBatchMutation(ctx context.Context, client graphp.DgraphClient,
 	size int, pending int) *BatchMutation {
 	bm := BatchMutation{
 		size:    size,
@@ -264,7 +265,7 @@ func NewBatchMutation(ctx context.Context, conn *grpc.ClientConn,
 		nquads:  make(chan nquadOp, 2*size),
 		schema:  make(chan graphp.SchemaUpdate, 2*size),
 		start:   time.Now(),
-		dc:      graphp.NewDgraphClient(conn),
+		dc:      client,
 	}
 
 	for i := 0; i < pending; i++ {

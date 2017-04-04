@@ -1,6 +1,5 @@
 +++
 title = "Query Language"
-weight = 0
 +++
 
 ## GraphQL+-
@@ -36,7 +35,7 @@ RDF N-Quad allows specifying the language for string values, using `@lang`. Usin
 ```
 To specify the language of the value to be returned from query `@lang1:lang2:lang3` notation is used. It is extension over RDF N-Quad syntax, and allows specifying multiple languages in order of preference. If value in given language is not found, next language from list is considered. If there are no values in any of specified languages, the value without specified language is returned. At last, if there is no value without language, value in ''some'' language is returned (this is implementation specific).
 
-{{ Note | Languages preference list cannot be used in functions.}}
+{{% notice "note" %}}Languages preference list cannot be used in functions.{{% /notice %}}
 
 ### Batch mutations
 
@@ -325,42 +324,42 @@ The following types are supported by Dgraph.
 
 ```
 # Sample schema
-name: string
-age: int
+name: string .
+age: int .
 ```
 
 * Mutations only check the scalar types. For example, in the given schema, any mutation that sets age would be checked for being a valid integer, any mutation that sets name would be checked for being a valid string.
 * The returned fields are of types specified in the schema (given they were specified, or else derived from first mutation).
-* **If schema was not specified, the schema would be derived based on the first mutation for that predicate.**  The [rdf type]({{< relref "#rdf-type" >}}) present in the first mutation would be considered as the schema for the field. If no storage type is specified in rdf, then it would be treated as default type(Dgraph Type) and it is stored internally as string(Go Type).
+* **If schema was not specified, the schema would be derived based on the first mutation for that predicate.**  The [rdf types]({{< relref "#rdf-types" >}}) present in the first mutation would be considered as the schema for the field. If no storage type is specified in rdf, then it would be treated as default type(Dgraph Type) and it is stored internally as string(Go Type).
 
 ### Indexing
 
 `@index` keyword at the end of a scalar field declaration in the schema specifies that the predicate should be indexed. For example, if we want to index some fields, we should have a schema similar to the one below.
 ```
-name: string @index
-age: int @index
-address: string @index
-dateofbirth: date @index
-health: float @index
-location: geo @index
-timeafterbirth:  dateTime @index
+name: string @index .
+age: int @index .
+address: string @index .
+dateofbirth: date @index .
+health: float @index .
+location: geo @index .
+timeafterbirth:  datetime @index .
 ```
 
-All the scalar types except uid type can be indexed in dgraph. In the above example, we use the default tokenizer for each data type. You can specify a different tokenizer by writing `@index(tokenizerName)`. 
+All the scalar types except uid type can be indexed in dgraph. In the above example, we use the default tokenizer for each data type. You can specify a different tokenizer by writing `@index(tokenizerName)`.
 
 ```
-name: string @index(exact, term)
-age: int @index(int)
-address: string @index(term)
-dateofbirth: date @index(date)
-health: float @index(float)
-location: geo @index(geo)
-timeafterbirth:  dateTime @index(datetime)
+name: string @index(exact, term) .
+age: int @index(int) .
+address: string @index(term) .
+dateofbirth: date @index(date) .
+health: float @index(float) .
+location: geo @index(geo) .
+timeafterbirth:  datetime @index(datetime) .
 ```
 
 The available tokenizers are currently `term, fulltext, exact, int, float, geo, date, datetime`. All of them except `exact` and `fulltext` are the default tokenizers for their respective data types. You can specify multiple indexes per predicate as shown for `name` in the above example.
 
-{{% notice "note" %}}To be able to do sorting and filtering on a predicate, you must index it.{{% /notice %}}
+{{% notice "note" %}}To be able to do filtering on a predicate, you must index it.{{% /notice %}}
 
 #### String Indices
 There are three types of string indices: `exact`, `term` and `fulltext`. Following table summarize usage of each index type.
@@ -375,15 +374,14 @@ There are three types of string indices: `exact`, `term` and `fulltext`. Followi
 
 Not all the indices establish a total order among the values that they index. So, in order to order based on the values or do inequality operations, the corresponding predicates must have a sortable index. The non-sortable indices that are curently present are `term`. All other indices are sortable. For example to sort by names or do any inequality operations on it, this line **must** be specified in schema.
 ```
-name: string @index(exact)
+name: string @index(exact) .
 ```
 
 ### Reverse Edges
 Each graph edge is unidirectional. It points from one node to another. A lot of times,  you wish to access data in both directions, forward and backward. Instead of having to send edges in both directions, you can use the `@reverse` keyword at the end of a uid (entity) field declaration in the schema. This specifies that the reverse edge should be automatically generated. For example, if we want to add a reverse edge for `directed_by` predicate, we should have a schema as follows.
 
 ```
-name: string @index
-directed_by: uid @reverse
+directed_by: uid @reverse .
 ```
 
 This would add a reverse edge for each `directed_by` edge and that edge can be accessed by prefixing `~` with the original predicate, i.e. `~directed_by`.
@@ -469,7 +467,7 @@ schema(pred: [name, friend]) {
 }' | python -m json.tool | less
 ```
 
-## RDF Types {#rdf-type}
+## RDF Types
 RDF types can also be used to specify the type of values. They can be attached to the values using the `^^` separator.
 
 ```
@@ -509,7 +507,7 @@ The following table lists all the supported [RDF datatypes](https://www.w3.org/T
 |  <http://www.w3.org/2001/XMLSchema#float> |    Float |
 
 
-In case a predicate has different schema type and storage type, the convertibility between the two is ensured during mutation and an error is thrown if they are incompatible.  The values are always stored as storage type if specified, or else they are converted to schema type and stored. Storage type is property of the value we are storing and schema type is property of the edge. 
+In case a predicate has different schema type and storage type, the convertibility between the two is ensured during mutation and an error is thrown if they are incompatible.  The values are always stored as storage type if specified, or else they are converted to schema type and stored. Storage type is property of the value we are storing and schema type is property of the edge.
 
 Example: If schema type is int and we do the following mutations.
 
@@ -1037,7 +1035,7 @@ curl localhost:8080/query -XPOST -d $'{
 ```
 Note that the first result with the name "Unexpected Passion" is either not a film entity, or it is a film entity with no genre.
 
-### Regex search 
+### Regex search
 `regexp` function allows a regular expression match on the values. It requires exact index to be present for working.
 
 ```
@@ -1049,7 +1047,7 @@ curl localhost:8080/query -XPOST -d $'{
     }
   }
 }
-' 
+'
 ```
 Output:
 ```
@@ -3049,7 +3047,7 @@ Output:
   ]
 }
 ```
-## Cascade Directive 
+## Cascade Directive
 
 `@cascade` directive forces a removal of those entites that don't have all the fields specified in the query. This can be useful in cases where some filter was applied. For example, consider this query:
 
@@ -3359,19 +3357,26 @@ curl localhost:8080/query -XPOST -d $'{
 }' | python -m json.tool | less
 ```
 
-The type of a variable can be suffixed with a ! to enforce that the variable must have a value. Also, the value of the variable must be parsable to the given type, if not, an error is thrown. Any variable that is being used must be declared in the named query clause in the beginning. And we also support default values for the variables. Example:
-
+* Variables whose type is suffixed with a `!` can't have a default value but must
+have a value as part of the variables map.
+* The value of the variable must be parsable to the given type, if not, an error is thrown.
+* Any variable that is being used must be declared in the named query clause in the beginning.
+* We also support default values for the variables. In the example below, `$a` has a
+default value of `2`.
 ```
 curl localhost:8080/query -XPOST -d $'{
- "query": "query test($a: int = 2, $b: int! = 3){  me(id: m.06pj8) {director.film (first: $a, offset: $b) {genre(first: $a) { name@en }}}}",
+ "query": "query test($a: int = 2, $b: int!){  me(id: m.06pj8) {director.film (first: $a, offset: $b) {genre(first: $a) { name@en }}}}",
  "variables" : {
-  "$a": "5"
+   "$a": "5",
+   "$b": "10"
  }
 }' | python -m json.tool | less
 ```
 
-If the variable is initialized in the variable map, the default value will be overridden (In the example, $a will be 5 and $b will be 3).
+* If the variable is initialized in the variable map, the default value will be
+overridden (In the example, `$a` will have value 5 and `$b` will be 3).
 
-The variable types that are supported as of now are: `int`, `float`, `bool` and `string`.
+* The variable types that are supported as of now are: `int`, `float`, `bool` and `string`.
+
 
 {{% notice "note" %}}In GraphiQL interface, the query and the variables have to be separately entered in their respective boxes.{{% /notice %}}

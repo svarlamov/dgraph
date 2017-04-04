@@ -39,7 +39,6 @@ class NavBar extends Component {
                         >
                             Community
                         </NavItem>
-
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
