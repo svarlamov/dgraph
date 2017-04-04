@@ -29,21 +29,15 @@ import (
 
 var emptyNum taskp.Num
 
-func createNumQuery(group uint32, umap map[string]uint64) *taskp.Num {
+func createNumQuery(group uint32, N uint64) *taskp.Num {
 	out := &taskp.Num{Group: group}
-	for _, v := range umap {
-		if v != 0 {
-			out.Uids = append(out.Uids, v)
-		} else {
-			out.Val++
-		}
-	}
+	out.Val = N
 	return out
 }
 
 // assignUids returns a byte slice containing uids.
 // This function is triggered by an RPC call. We ensure that only leader can assign new UIDs,
-// so we can tackle any collisions that might happen with the lockmanager.
+// so we can tackle any collisions that might happen with the leasemanager
 // In essence, we just want one server to be handing out new uids.
 func assignUids(ctx context.Context, num *taskp.Num) (*taskp.List, error) {
 	node := groups().Node(num.Group)
@@ -51,34 +45,24 @@ func assignUids(ctx context.Context, num *taskp.Num) (*taskp.List, error) {
 		return &emptyUIDList, x.Errorf("Assigning UIDs is only allowed on leader.")
 	}
 
-	val := int(num.Val)
-	markNum := len(num.Uids)
-	if val == 0 && markNum == 0 {
+	if num.Val == 0 {
 		return &emptyUIDList, x.Errorf("Nothing to be marked or assigned")
 	}
 
-	mutations := uid.AssignNew(val, num.Group)
+	N := uint64(num.Val)
+	// filter out already assigned xids
 
-	for _, uid := range num.Uids {
-		mutations.Edges = append(mutations.Edges, &taskp.DirectedEdge{
-			Entity: uid,
-			Attr:   "_uid_",
-			Value:  []byte("_"), // not txid
-			Label:  "A",
-			Op:     taskp.DirectedEdge_SET,
-		})
+	if uid.LeaseManager().NumAvailable() < N {
+		// take lease
 	}
 
-	proposal := &taskp.Proposal{Mutations: mutations}
-	if err := node.ProposeAndWait(ctx, proposal); err != nil {
-		return &emptyUIDList, err
-	}
-	// Mutations successfully applied.
+	startId := uid.LeaseManager().AssignNew(N)
 
-	out := make([]uint64, 0, val)
-	// Only the First N entities are newly assigned UIDs, so we collect them.
-	for i := 0; i < val; i++ {
-		out = append(out, mutations.Edges[i].Entity)
+	out := make([]uint64, 0, num.Val)
+	var i uint64
+	// First N entities are newly assigned UIDs, so we collect them.
+	for i = 0; i < num.Val; i++ {
+		out = append(out, startId+i)
 	}
 	return &taskp.List{out}, nil
 }
@@ -86,7 +70,7 @@ func assignUids(ctx context.Context, num *taskp.Num) (*taskp.List, error) {
 // AssignUidsOverNetwork assigns new uids and writes them to the umap.
 func AssignUidsOverNetwork(ctx context.Context, umap map[string]uint64) error {
 	gid := group.BelongsTo("_uid_")
-	num := createNumQuery(gid, umap)
+	num := createNumQuery(gid, uint64(len(umap)))
 
 	var ul *taskp.List
 	var err error

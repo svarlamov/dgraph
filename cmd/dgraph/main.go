@@ -164,11 +164,7 @@ func convertToEdges(ctx context.Context, nquads []*graphp.NQuad) (mutationResult
 		} else {
 			// Only store xids that need to be marked as used.
 			if _, err := strconv.ParseInt(nq.Subject, 0, 64); err != nil {
-				uid, err := rdf.GetUid(nq.Subject)
-				if err != nil {
-					return mr, err
-				}
-				newUids[nq.Subject] = uid
+				newUids[nq.Subject] = 0
 			}
 		}
 
@@ -176,11 +172,7 @@ func convertToEdges(ctx context.Context, nquads []*graphp.NQuad) (mutationResult
 			if strings.HasPrefix(nq.ObjectId, "_:") {
 				newUids[nq.ObjectId] = 0
 			} else if !strings.HasPrefix(nq.ObjectId, "_uid_:") {
-				uid, err := rdf.GetUid(nq.ObjectId)
-				if err != nil {
-					return mr, err
-				}
-				newUids[nq.ObjectId] = uid
+				newUids[nq.ObjectId] = 0
 			}
 		}
 	}
