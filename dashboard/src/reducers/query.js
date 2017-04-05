@@ -6,7 +6,8 @@ const query = (
         text: "",
         desc: "",
         // Regex to match property name to display in Graph for nodes.
-        propertyRegex: "name"
+        propertyRegex: "name",
+        shareId: ""
     },
     action
 ) => {

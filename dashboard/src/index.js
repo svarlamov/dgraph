@@ -1,5 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import {
+    BrowserRouter as Router,
+    Route,
+    browserHistory
+} from "react-router-dom";
 import { compose, createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import thunk from "redux-thunk";
@@ -26,7 +31,9 @@ persistStore(store, { whitelist: ["previousQueries", "query", "scratchpad"] });
 const render = Component => {
     return ReactDOM.render(
         <Provider store={store}>
-            <Component />
+            <Router history={browserHistory}>
+                <Route path="/:id?" component={Component} />
+            </Router>
         </Provider>,
         document.getElementById("root")
     );

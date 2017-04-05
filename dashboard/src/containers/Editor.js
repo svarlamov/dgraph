@@ -9,7 +9,7 @@ import {
   Col
 } from "react-bootstrap";
 
-import { runQuery, updateRegex, selectQuery } from "../actions";
+import { runQuery, updateRegex, selectQuery, updateShareId } from "../actions";
 import { timeout, checkStatus, sortStrings, dgraphAddress } from "./Helpers";
 import "../assets/css/Editor.css";
 
@@ -259,6 +259,8 @@ class Editor extends Component {
     };
 
     this.editor.on("change", cm => {
+      // Set shareId to be ""
+      this.props.updateShareId("");
       this.props.updateQuery(this.editor.getValue(), "");
     });
 
@@ -280,6 +282,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   onRunQuery: runQuery,
   updateQuery: selectQuery,
+  updateShareId,
   updateRegex
 };
 

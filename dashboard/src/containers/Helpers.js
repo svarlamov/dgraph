@@ -545,5 +545,5 @@ export function dgraphAddress() {
   }
 
   // For development, we just connect to the Dgraph server at http://localhost:8080.
-  return "http://localhost:8080";
+  return "http://play.dgraph.io";
 }

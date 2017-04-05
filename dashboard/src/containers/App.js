@@ -2,11 +2,11 @@ import React from "react";
 import { connect } from "react-redux";
 import screenfull from "screenfull";
 
-import NavBar from "../components/Navbar";
+import NavbarContainer from "../containers/NavbarContainer";
 import PreviousQueryListContainer from "./PreviousQueryListContainer";
 import Editor from "./Editor";
 import Response from "./Response";
-import { updateFullscreen } from "../actions";
+import { updateFullscreen, getQuery } from "../actions";
 
 import "../assets/css/App.css";
 
@@ -25,7 +25,7 @@ class App extends React.Component {
   render = () => {
     return (
       <div>
-        <NavBar />
+        <NavbarContainer />
         <div className="container-fluid">
           <div className="row justify-content-md-center">
             <div className="col-sm-12">
@@ -54,11 +54,21 @@ class App extends React.Component {
       </div>
     );
   };
+
+  componentDidMount() {
+    let id = this.props.match.params.id;
+    if (id !== undefined) {
+      this.props.getQuery(id);
+    }
+  }
 }
 
 const mapDispatchToProps = dispatch => ({
   updateFs: fs => {
     dispatch(updateFullscreen(fs));
+  },
+  getQuery: id => {
+    dispatch(getQuery(id));
   }
 });
 

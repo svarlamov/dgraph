@@ -202,3 +202,81 @@ export const addScratchpadEntry = entry => ({
 export const deleteScratchpadEntries = () => ({
     type: "DELETE_SCRATCHPAD_ENTRIES"
 });
+
+export const updateShareId = shareId => ({
+    type: "UPDATE_SHARE_ID",
+    shareId
+});
+
+export const getShareId = (dispatch, getState) => {
+    let query = getState().query.text;
+    timeout(
+        6000,
+        fetch("http://localhost:8080/save", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query: encodeURI(query)
+            })
+        })
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(function handleResponse(result) {
+                if (result.id !== undefined) {
+                    dispatch(updateShareId(result.id));
+                }
+                // else display error?
+            })
+    )
+        .catch(function(error) {
+            console.log(error.stack);
+            var err = (error.response && error.response.text()) ||
+                error.message;
+            return err;
+        })
+        .then(function(errorMsg) {
+            if (errorMsg !== undefined) {
+                // Display somewhere.
+            }
+        });
+};
+
+export const getQuery = shareId => {
+    console.log(shareId);
+    return dispatch => {
+        timeout(
+            6000,
+            fetch("http://localhost:8080/retrieve?id=" + shareId, {
+                method: "GET",
+                mode: "cors",
+                headers: {
+                    Accept: "application/json"
+                }
+            })
+                .then(checkStatus)
+                .then(response => response.json())
+                .then(function handleResponse(result) {
+                    if (result.error === undefined) {
+                        console.log(decodeURI(result.query));
+                        dispatch(selectQuery(decodeURI(result.query), ""));
+                    }
+                    // Maybe display a small error saying id, didn't match.
+                })
+        )
+            .catch(function(error) {
+                console.log(error.stack);
+                var err = (error.response && error.response.text()) ||
+                    error.message;
+                return err;
+            })
+            .then(function(errorMsg) {
+                if (errorMsg !== undefined) {
+                    // Display somewhere.
+                }
+            });
+    };
+};
