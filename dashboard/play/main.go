@@ -166,12 +166,6 @@ func retrieveQuery(w http.ResponseWriter, r *http.Request) {
 	}
 }`, id), map[string]string{})
 
-	fmt.Println(fmt.Sprintf(`
-{
-	query(id: %s) {
-		query
-	}
-}`, id))
 	resp, err := c.Run(context.Background(), req.Request())
 	x.Checkf(err, "While trying to fetch query using _uid_.")
 	x.AssertTruef(len(resp.N[0].Children) <= 1, "Got multiple queries with the same _uid_.")

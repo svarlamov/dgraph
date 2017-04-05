@@ -549,5 +549,5 @@ export function dgraphAddress() {
 }
 
 export function queryServerAddress() {
-  return "https://play.dgraph.io:8080";
+  return "http://play.dgraph.io:8080";
 }

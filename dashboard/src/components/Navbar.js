@@ -8,7 +8,7 @@ import "../assets/css/Navbar.css";
 
 function NavBar(props) {
     let { getShareId, shareId } = props,
-        url = dgraphAddress + "/" + shareId,
+        url = dgraphAddress() + "/" + shareId,
         urlClass = shareId === "" ? "Nav-url-hide" : "";
     return (
         <Navbar style={{ borderBottom: "0.5px solid gray" }} fluid={true}>
