@@ -41,7 +41,7 @@ function NavBar(props) {
                     <NavItem target="_blank" href="https://dgraph.slack.com">
                         Community
                     </NavItem>
-                    <NavItem className="Nav-pad hidden-xs">
+                    <NavItem className="Nav-pad hidden-sm">
                         <form className="form-inline">
                             <button
                                 className="btn btn-default"
