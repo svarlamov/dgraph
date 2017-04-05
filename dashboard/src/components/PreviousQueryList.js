@@ -61,7 +61,7 @@ class PreviousQueryList extends Component {
                                     desc={query.desc}
                                     key={this.props.xs + i}
                                     idx={i}
-                                    select={this.props.selectQuery}
+                                    select={this.props.select}
                                     delete={this.props.deleteQuery}
                                     resetResponse={this.props.resetResponse}
                                 />

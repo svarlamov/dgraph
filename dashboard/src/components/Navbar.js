@@ -8,7 +8,7 @@ import "../assets/css/Navbar.css";
 
 function NavBar(props) {
     let { getShareId, shareId } = props,
-        url = "localhost:3000" + "/" + shareId,
+        url = dgraphAddress + "/" + shareId,
         urlClass = shareId === "" ? "Nav-url-hide" : "";
     return (
         <Navbar style={{ borderBottom: "0.5px solid gray" }} fluid={true}>
@@ -41,7 +41,7 @@ function NavBar(props) {
                     <NavItem target="_blank" href="https://dgraph.slack.com">
                         Community
                     </NavItem>
-                    <NavItem className="hidden-xs">
+                    <NavItem className="Nav-pad hidden-xs">
                         <form className="form-inline">
                             <button
                                 className="btn btn-default"
@@ -60,6 +60,7 @@ function NavBar(props) {
                                 className={`form-control ${urlClass}`}
                                 type="text"
                                 value={url}
+                                onChange={() => {}}
                                 placeholder="Share"
                             />
                         </form>

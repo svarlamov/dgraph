@@ -49,7 +49,6 @@
 .App-prev-queries-tbody {
     height: 500px;
     overflow-y: scroll;
-    display: block;
 }
 
 .App-prev-queries .input-group-btn {

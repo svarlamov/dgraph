@@ -65,9 +65,10 @@ class Editor extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
+    // This gets triggered when someone selects a query from the previous query
+    // box.
     if (nextProps.query !== this.getValue()) {
       this.editor.setValue(nextProps.query);
-      this.props.onRunQuery(nextProps.query);
     }
   };
 
@@ -259,7 +260,7 @@ class Editor extends Component {
     };
 
     this.editor.on("change", cm => {
-      // Set shareId to be ""
+      // Set shareId to be "" so that shareUrl is hidden.
       this.props.updateShareId("");
       this.props.updateQuery(this.editor.getValue(), "");
     });

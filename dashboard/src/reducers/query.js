@@ -25,6 +25,15 @@ const query = (
             };
         case REHYDRATE:
             var incoming = action.payload.previousQueries;
+            // If previousQueries already has entries, lets pick the last one.
+            if (incoming && incoming.length !== 0 && state.text === "") {
+                return {
+                    ...state,
+                    text: incoming[0].text
+                };
+            }
+            // Else if there are no previous queries, lets grab the first entry
+            // from stored queries.
             if (!incoming || incoming.length === 0) {
                 return {
                     ...state,

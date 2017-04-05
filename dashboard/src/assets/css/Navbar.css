@@ -1,3 +1,7 @@
 .Nav-url-hide {
 	display: none !important;
 }
+
+.Nav-pad a {
+	padding-top: 10px !important;
+}

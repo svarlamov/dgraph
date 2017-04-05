@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 
 import PreviousQueryList from "../components/PreviousQueryList";
 import {
-    selectQuery,
+    selectAndRun,
     deleteQuery,
     resetResponseState,
     deleteAllQueries
@@ -14,8 +14,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    selectQuery: (text, desc) => {
-        dispatch(selectQuery(text, desc));
+    select: (text, desc) => {
+        dispatch(selectAndRun(text, desc));
     },
     deleteQuery: idx => {
         dispatch(deleteQuery(idx));

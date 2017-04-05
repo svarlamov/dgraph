@@ -4,7 +4,8 @@ import {
     isNotEmpty,
     showTreeView,
     processGraph,
-    dgraphAddress
+    dgraphAddress,
+    queryServerAddress
 } from "../containers/Helpers";
 
 // TODO - Check if its better to break this file down into multiple files.
@@ -212,7 +213,7 @@ export const getShareId = (dispatch, getState) => {
     let query = getState().query.text;
     timeout(
         6000,
-        fetch("http://localhost:8080/save", {
+        fetch(queryServerAddress() + "/save", {
             method: "POST",
             mode: "cors",
             headers: {
@@ -245,12 +246,18 @@ export const getShareId = (dispatch, getState) => {
         });
 };
 
+export const selectAndRun = (text, desc) => {
+    return dispatch => {
+        dispatch(selectQuery(text, desc));
+        dispatch(runQuery(text));
+    };
+};
+
 export const getQuery = shareId => {
-    console.log(shareId);
     return dispatch => {
         timeout(
             6000,
-            fetch("http://localhost:8080/retrieve?id=" + shareId, {
+            fetch(queryServerAddress() + "/retrieve?id=" + shareId, {
                 method: "GET",
                 mode: "cors",
                 headers: {
@@ -261,10 +268,9 @@ export const getQuery = shareId => {
                 .then(response => response.json())
                 .then(function handleResponse(result) {
                     if (result.error === undefined) {
-                        console.log(decodeURI(result.query));
-                        dispatch(selectQuery(decodeURI(result.query), ""));
+                        dispatch(selectAndRun(decodeURI(result.query), ""));
                     }
-                    // Maybe display a small error saying id, didn't match.
+                    // Maybe drisplay a small error saying id, didn't match.
                 })
         )
             .catch(function(error) {
@@ -278,5 +284,16 @@ export const getQuery = shareId => {
                     // Display somewhere.
                 }
             });
+    };
+};
+
+export const updateInitialQuery = () => {
+    return (dispatch, getState) => {
+        let lastQuery = getState().previousQueries.length > 0 &&
+            getState().previousQueries[0];
+
+        if (lastQuery) {
+            dispatch(selectAndRun(lastQuery.text, ""));
+        }
     };
 };

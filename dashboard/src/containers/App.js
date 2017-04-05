@@ -6,7 +6,7 @@ import NavbarContainer from "../containers/NavbarContainer";
 import PreviousQueryListContainer from "./PreviousQueryListContainer";
 import Editor from "./Editor";
 import Response from "./Response";
-import { updateFullscreen, getQuery } from "../actions";
+import { updateFullscreen, getQuery, updateInitialQuery } from "../actions";
 
 import "../assets/css/App.css";
 
@@ -59,6 +59,8 @@ class App extends React.Component {
     let id = this.props.match.params.id;
     if (id !== undefined) {
       this.props.getQuery(id);
+    } else {
+      this.props.updateInitialQuery();
     }
   }
 }
@@ -69,6 +71,9 @@ const mapDispatchToProps = dispatch => ({
   },
   getQuery: id => {
     dispatch(getQuery(id));
+  },
+  updateInitialQuery: () => {
+    dispatch(updateInitialQuery());
   }
 });
 
