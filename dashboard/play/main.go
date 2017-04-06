@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"os"
 
 	"github.com/dgraph-io/dgraph/client"
 	"github.com/dgraph-io/dgraph/protos/graphp"
@@ -16,7 +18,11 @@ import (
 )
 
 var (
-	dgraph = flag.String("d", "127.0.0.1:8082", "Dgraph server address")
+	port           = flag.String("port", ":80", "Port to run server on.")
+	dgraphFreebase = flag.String("df", "127.0.0.1:8080", "Dgraph server which has 21 Million data.")
+	dgraphShare    = flag.String("ds", "127.0.0.1:8082", "Dgraph server for saving share-ids")
+	ui             = flag.String("ui", os.Getenv("GOPATH")+"/src/github.com/dgraph-io/dgraph/dashboard/build",
+		"Directory which contains assets for the user interface")
 )
 
 func addCorsHeaders(w http.ResponseWriter) {
@@ -176,17 +182,33 @@ func retrieveQuery(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
+func proxyHandler(w http.ResponseWriter, r *http.Request) {
+	director := func(req *http.Request) {
+		req = r
+		req.URL.Scheme = "http"
+		req.URL.Host = *dgraphFreebase
+	}
+	proxy := &httputil.ReverseProxy{Director: director}
+	proxy.ServeHTTP(w, r)
+}
+
 var c graphp.DgraphClient
 
 func main() {
-	conn, err := grpc.Dial(*dgraph, grpc.WithInsecure())
+	flag.Parse()
+	conn, err := grpc.Dial(*dgraphShare, grpc.WithInsecure())
 	x.Check(err)
 
 	// Creating a new client.
 	c = graphp.NewDgraphClient(conn)
 
+	// These three requests are proxied to the Dgraph server with freebase data.
+	http.HandleFunc("/query", proxyHandler)
+	http.HandleFunc("/", proxyHandler)
+	http.HandleFunc("/ui/keywords", proxyHandler)
+
 	http.HandleFunc("/save", saveQuery)
 	http.HandleFunc("/retrieve", retrieveQuery)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(*port, nil))
 }

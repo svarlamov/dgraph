@@ -271,6 +271,7 @@ export const getQuery = shareId => {
                 .then(function handleResponse(result) {
                     if (result.error === undefined) {
                         dispatch(selectQuery(decodeURI(result.query)));
+                        return;
                     }
                     // Maybe drisplay a small error saying id, didn't match.
                 })
