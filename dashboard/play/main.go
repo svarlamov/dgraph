@@ -72,11 +72,6 @@ func saveQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if q.Query == "" {
-		writeError(w, "Empty query.")
-		return
-	}
-
 	req := client.Req{}
 
 	// Lets check if we already have this query.

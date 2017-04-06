@@ -35,6 +35,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"regexp"
 	"runtime"
 	"runtime/pprof"
 	"strconv"
@@ -762,6 +763,18 @@ func serveHTTP(l net.Listener) {
 	}
 }
 
+func homeHandler(h http.Handler, reg *regexp.Regexp) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// If path is '/hexValue', lets return the index.html.
+		if reg.MatchString(r.URL.Path) {
+			http.ServeFile(w, r, uiDir+"/index.html")
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
+}
+
 func setupServer(che chan error) {
 	go worker.RunServer(*bindall) // For internal communication.
 
@@ -788,7 +801,10 @@ func setupServer(che chan error) {
 	http.HandleFunc("/admin/backup", backupHandler)
 
 	// UI related API's.
-	http.Handle("/", http.FileServer(http.Dir(uiDir)))
+	// play.dgraph.io share urls have a hex string as the shareId. So if
+	// our url path matches it, we wan't to serve index.html.
+	reg := regexp.MustCompile(`\/0[xX][0-9a-fA-F]+`)
+	http.Handle("/", homeHandler(http.FileServer(http.Dir(uiDir)), reg))
 	http.HandleFunc("/ui/keywords", keywordHandler)
 
 	// Initilize the servers.

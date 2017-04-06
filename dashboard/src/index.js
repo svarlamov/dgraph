@@ -10,10 +10,10 @@ import { Provider } from "react-redux";
 import thunk from "redux-thunk";
 import { persistStore, autoRehydrate } from "redux-persist";
 import reducer from "./reducers";
-import App from "./containers/App";
-
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/css/bootstrap-theme.css";
+
+import App from "./containers/App";
 
 const middleware = [thunk];
 

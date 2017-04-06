@@ -69,6 +69,10 @@ class Editor extends Component {
     // box.
     if (nextProps.query !== this.getValue()) {
       this.editor.setValue(nextProps.query);
+      // On initial load, this.props.query would be empty.
+      if (this.props.query === "") {
+        this.props.onRunQuery(nextProps.query);
+      }
     }
   };
 

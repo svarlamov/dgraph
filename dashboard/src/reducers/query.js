@@ -1,6 +1,3 @@
-import { REHYDRATE } from "redux-persist/constants";
-import storedQueries from "../data/queries.js";
-
 const query = (
     state = {
         text: "",
@@ -22,24 +19,6 @@ const query = (
                 ...state,
                 propertyRegex: action.regex
             };
-        case REHYDRATE:
-            var incoming = action.payload.previousQueries;
-            // If previousQueries already has entries, lets pick the last one.
-            if (incoming && incoming.length !== 0 && state.text === "") {
-                return {
-                    ...state,
-                    text: incoming[0].text
-                };
-            }
-            // Else if there are no previous queries, lets grab the first entry
-            // from stored queries.
-            if (!incoming || incoming.length === 0) {
-                return {
-                    ...state,
-                    text: storedQueries[0].text
-                };
-            }
-            return state;
         default:
             return state;
     }

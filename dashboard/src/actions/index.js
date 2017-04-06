@@ -8,6 +8,8 @@ import {
     queryServerAddress
 } from "../containers/Helpers";
 
+import storedQueries from "../data/queries.js";
+
 // TODO - Check if its better to break this file down into multiple files.
 
 export const updatePartial = partial => ({
@@ -268,7 +270,7 @@ export const getQuery = shareId => {
                 .then(response => response.json())
                 .then(function handleResponse(result) {
                     if (result.error === undefined) {
-                        dispatch(selectAndRun(decodeURI(result.query), ""));
+                        dispatch(selectQuery(decodeURI(result.query)));
                     }
                     // Maybe drisplay a small error saying id, didn't match.
                 })
@@ -289,11 +291,16 @@ export const getQuery = shareId => {
 
 export const updateInitialQuery = () => {
     return (dispatch, getState) => {
-        let lastQuery = getState().previousQueries.length > 0 &&
-            getState().previousQueries[0];
-
-        if (lastQuery) {
-            dispatch(selectAndRun(lastQuery.text, ""));
+        let incoming = getState().previousQueries;
+        if (incoming && incoming.length !== 0) {
+            dispatch(selectQuery(incoming[0].text));
+            return;
+        }
+        // Else if there are no previous queries, lets grab the first entry
+        // from stored queries.
+        if (!incoming || incoming.length === 0) {
+            dispatch(selectQuery(storedQueries[0].text));
+            return;
         }
     };
 };

@@ -41,7 +41,7 @@ function NavBar(props) {
                     <NavItem target="_blank" href="https://dgraph.slack.com">
                         Community
                     </NavItem>
-                    <NavItem className="Nav-pad hidden-sm">
+                    <NavItem className="Nav-pad hidden-xs">
                         <form className="form-inline">
                             <button
                                 className="btn btn-default"
@@ -53,11 +53,9 @@ function NavBar(props) {
                                 Share
                             </button>
                             <input
-                                style={{
-                                    marginLeft: "10px",
-                                    width: "350px"
-                                }}
-                                className={`form-control ${urlClass}`}
+                                className={
+                                    `form-control Nav-share-url ${urlClass}`
+                                }
                                 type="text"
                                 value={url}
                                 onChange={() => {}}
