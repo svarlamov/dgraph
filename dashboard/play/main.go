@@ -89,7 +89,11 @@ func saveQuery(w http.ResponseWriter, r *http.Request) {
 }`, q.Query), map[string]string{})
 
 	resp, err := c.Run(context.Background(), req.Request())
-	x.Checkf(err, "While running a query to perform a eq match on a string.")
+	if err != nil {
+		fmt.Println("Error: %v while running a query: %v", err.Error(), q.Query)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	x.AssertTruef(len(resp.N[0].Children) <= 1, "Got multiple queries with the same query string.")
 	if len(resp.N[0].Children) > 0 {
 		// We have this query already stored, lets return the Uid.
@@ -202,7 +206,7 @@ func main() {
 	// Creating a new client.
 	c = graphp.NewDgraphClient(conn)
 
-	// These three requests are proxied to the Dgraph server with freebase data.
+	// These three requests are proxied to the Dgraph server with freeba
 	http.HandleFunc("/query", proxyHandler)
 	http.HandleFunc("/", proxyHandler)
 	http.HandleFunc("/ui/keywords", proxyHandler)

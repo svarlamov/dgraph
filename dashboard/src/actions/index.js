@@ -211,6 +211,11 @@ export const updateShareId = shareId => ({
     shareId
 });
 
+export const queryFound = found => ({
+    type: "QUERY_FOUND",
+    found: found
+});
+
 export const getShareId = (dispatch, getState) => {
     let query = getState().query.text;
     timeout(
@@ -273,10 +278,11 @@ export const getQuery = shareId => {
                         dispatch(selectQuery(decodeURI(result.query)));
                         return;
                     }
-                    // Maybe drisplay a small error saying id, didn't match.
                 })
         )
             .catch(function(error) {
+                dispatch(queryFound(false));
+
                 console.log(error.stack);
                 var err = (error.response && error.response.text()) ||
                     error.message;

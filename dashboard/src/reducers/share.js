@@ -1,6 +1,7 @@
 const share = (
     state = {
-        id: ""
+        id: "",
+        found: true
     },
     action
 ) => {
@@ -9,6 +10,11 @@ const share = (
             return {
                 ...state,
                 id: action.shareId
+            };
+        case "QUERY_FOUND":
+            return {
+                ...state,
+                found: action.found
             };
         default:
             return state;

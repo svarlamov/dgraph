@@ -1,17 +1,23 @@
 import React from "react";
 import { connect } from "react-redux";
 import screenfull from "screenfull";
+import { Alert } from "react-bootstrap";
 
 import NavbarContainer from "../containers/NavbarContainer";
 import PreviousQueryListContainer from "./PreviousQueryListContainer";
 import Editor from "./Editor";
 import Response from "./Response";
-import { updateFullscreen, getQuery, updateInitialQuery } from "../actions";
+import {
+  updateFullscreen,
+  getQuery,
+  updateInitialQuery,
+  queryFound
+} from "../actions";
 
 import "../assets/css/App.css";
 
-class App extends React.Component {
-  enterFullScreen = updateFullscreen => {
+const App = React.createClass({
+  enterFullScreen(updateFullscreen) {
     if (!screenfull.enabled) {
       return;
     }
@@ -20,15 +26,29 @@ class App extends React.Component {
       updateFullscreen(screenfull.isFullscreen);
     });
     screenfull.request(document.getElementById("response"));
-  };
+  },
 
-  render = () => {
+  render() {
     return (
       <div>
         <NavbarContainer />
         <div className="container-fluid">
           <div className="row justify-content-md-center">
             <div className="col-sm-12">
+              <div className="col-sm-8 col-sm-offset-2">
+                {!this.props.found &&
+                  <Alert
+                    ref={alert => {
+                      this.alert = alert;
+                    }}
+                    bsStyle="danger"
+                    onDismiss={() => {
+                      this.props.queryFound(true);
+                    }}
+                  >
+                    Couldn't find query with the given id.
+                  </Alert>}
+              </div>
               <div className="col-sm-5">
                 <Editor />
                 <PreviousQueryListContainer xs="hidden-xs" />
@@ -53,7 +73,7 @@ class App extends React.Component {
         </div>
       </div>
     );
-  };
+  },
 
   componentDidMount() {
     let id = this.props.match.params.id;
@@ -62,8 +82,24 @@ class App extends React.Component {
     } else {
       this.props.updateInitialQuery();
     }
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.found) {
+      // Lets auto close the alert after 2 secs.
+      setTimeout(
+        () => {
+          this.props.queryFound(true);
+        },
+        3000
+      );
+    }
   }
-}
+});
+
+const mapStateToProps = state => ({
+  found: state.share.found
+});
 
 const mapDispatchToProps = dispatch => ({
   updateFs: fs => {
@@ -74,7 +110,10 @@ const mapDispatchToProps = dispatch => ({
   },
   updateInitialQuery: () => {
     dispatch(updateInitialQuery());
+  },
+  queryFound: found => {
+    dispatch(queryFound(found));
   }
 });
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);
