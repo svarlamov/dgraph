@@ -15,6 +15,7 @@ import (
 	"github.com/dgraph-io/dgraph/client"
 	"github.com/dgraph-io/dgraph/protos/graphp"
 	"github.com/dgraph-io/dgraph/x"
+	"github.com/gorilla/handlers"
 	"google.golang.org/grpc"
 )
 
@@ -219,6 +220,7 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 600 * time.Second,
 		IdleTimeout:  2 * time.Minute,
+		Handler:      handlers.LoggingHandler(os.Stdout, http.DefaultServeMux),
 	}
 	log.Fatal(srv.ListenAndServe())
 }
