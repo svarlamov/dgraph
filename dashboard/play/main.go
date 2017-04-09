@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"time"
 
 	"github.com/dgraph-io/dgraph/client"
 	"github.com/dgraph-io/dgraph/protos/graphp"
@@ -213,6 +214,11 @@ func main() {
 
 	http.HandleFunc("/save", saveQuery)
 	http.HandleFunc("/retrieve", retrieveQuery)
-
-	log.Fatal(http.ListenAndServe(*port, nil))
+	srv := &http.Server{
+		Addr:         *port,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 600 * time.Second,
+		IdleTimeout:  2 * time.Minute,
+	}
+	log.Fatal(srv.ListenAndServe())
 }
