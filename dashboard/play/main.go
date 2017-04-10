@@ -88,7 +88,7 @@ func saveQuery(w http.ResponseWriter, r *http.Request) {
 	query(func:eq(query, "%s")) {
 		_uid_
 	}
-}`, q.Query), map[string]string{})
+}`, q.Query))
 
 	resp, err := c.Run(context.Background(), req.Request())
 	if err != nil {
@@ -171,7 +171,7 @@ func retrieveQuery(w http.ResponseWriter, r *http.Request) {
 	query(id: %s) {
 		query
 	}
-}`, id), map[string]string{})
+}`, id))
 
 	resp, err := c.Run(context.Background(), req.Request())
 	x.Checkf(err, "While trying to fetch query using _uid_.")
