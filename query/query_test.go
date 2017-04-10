@@ -417,6 +417,91 @@ func TestQueryVarValAggMinMax(t *testing.T) {
 		js)
 }
 
+func TestWrongVarType_Error1(t *testing.T) {
+	populateGraph(t)
+	query := `
+		{
+			f as var(func: anyofterms(name, "Michonne Andrea Rick")) {
+				friend {
+					n as min(age)
+					s as max(age)
+					sum as sumvar(n, s)
+				}
+			}
+
+			me(id: var(sum), orderdesc: var(f)) {
+				name 
+				var(n)
+				var(s)
+			}
+		}
+	`
+	res, err := gql.Parse(gql.Request{Str: query})
+	require.NoError(t, err)
+
+	var l Latency
+	ctx := context.Background()
+	_, err = ProcessQuery(ctx, res, &l)
+	require.Error(t, err)
+}
+
+func TestWrongVarType_Error2(t *testing.T) {
+	populateGraph(t)
+	query := `
+		{
+			var(func: anyofterms(name, "Michonne Andrea Rick")) {
+				friend {
+					n as min(age)
+					s as max(age)
+					sum as sumvar(n, s)
+				}
+			}
+
+			me(id: var(sum)) {
+				name 
+				var(n)
+				var(s)
+			}
+		}
+	`
+	res, err := gql.Parse(gql.Request{Str: query})
+	require.NoError(t, err)
+
+	var l Latency
+	ctx := context.Background()
+	_, err = ProcessQuery(ctx, res, &l)
+	require.Error(t, err)
+}
+
+func TestWrongVarType_Error3(t *testing.T) {
+	populateGraph(t)
+	query := `
+		{
+			f as var(func: anyofterms(name, "Michonne Andrea Rick")) {
+				friend {
+					n as min(age)
+					s as max(age)
+					sum as sumvar(n, s)
+				}
+			}
+
+			me(id: var(f), orderdesc: var(f)) {
+				name 
+				var(n)
+				var(s)
+				var(sum)
+			}
+		}
+	`
+	res, err := gql.Parse(gql.Request{Str: query})
+	require.NoError(t, err)
+
+	var l Latency
+	ctx := context.Background()
+	_, err = ProcessQuery(ctx, res, &l)
+	require.Error(t, err)
+}
+
 func TestQueryVarValAggOrderDesc(t *testing.T) {
 	populateGraph(t)
 	query := `
@@ -438,7 +523,7 @@ func TestQueryVarValAggOrderDesc(t *testing.T) {
 	`
 	js := processToFastJSON(t, query)
 	require.JSONEq(t,
-		`{"info":[{"friend":[{"age":15,"friend":[{"count":1}],"sumvar[n s]":16},{"age":15,"friend":[{"count":0}],"sumvar[n s]":15},{"age":17,"friend":[{"count":0}],"sumvar[n s]":17},{"age":19,"friend":[{"count":1}],"sumvar[n s]":20},{"friend":[{"count":0}]}]}],"me":[{"age":19,"friend":[{"count":1}],"name":"Andrea"},{"age":17,"friend":[{"count":0}],"name":"Daryl Dixon"},{"age":15,"friend":[{"count":1}],"name":"Rick Grimes"},{"age":15,"friend":[{"count":0}],"name":"Glenn Rhee"}]}`,
+		`{"info":[{"friend":[{"age":15,"friend":[{"count":1}],"var[sum]":16},{"age":15,"friend":[{"count":0}],"var[sum]":15},{"age":17,"friend":[{"count":0}],"var[sum]":17},{"age":19,"friend":[{"count":1}],"var[sum]":20},{"friend":[{"count":0}]}]}],"me":[{"age":19,"friend":[{"count":1}],"name":"Andrea"},{"age":17,"friend":[{"count":0}],"name":"Daryl Dixon"},{"age":15,"friend":[{"count":1}],"name":"Rick Grimes"},{"age":15,"friend":[{"count":0}],"name":"Glenn Rhee"}]}`,
 		js)
 }
 
@@ -2127,6 +2212,44 @@ func TestToFastJSONFilterallofterms(t *testing.T) {
 	js := processToFastJSON(t, query)
 	require.EqualValues(t,
 		`{"me":[{"gender":"female","name":"Michonne"}]}`, js)
+}
+
+func TestInvalidStringIndex(t *testing.T) {
+	// no FTS index defined for name
+	populateGraph(t)
+	query := `
+		{
+			me(id:0x01) {
+				name
+				gender
+				friend @filter(alloftext(name, "Andrea SomethingElse")) {
+					name
+				}
+			}
+		}
+	`
+
+	_, err := processToFastJsonReq(t, query)
+	require.Error(t, err)
+}
+
+func TestValidFulltextIndex(t *testing.T) {
+	// no FTS index defined for name
+	populateGraph(t)
+	query := `
+		{
+			me(id:0x01) {
+				name
+				friend @filter(alloftext(alias, "BOB")) {
+					alias
+				}
+			}
+		}
+	`
+
+	js := processToFastJSON(t, query)
+	require.JSONEq(t,
+		`{"me":[{"name":"Michonne", "friend":[{"alias":"Bob Joe"}]}]}`, js)
 }
 
 func TestFilterRegexError(t *testing.T) {
@@ -4025,7 +4148,7 @@ func TestGeneratorRootFilterOnCountError3(t *testing.T) {
 
 	var l Latency
 	_, queryErr := ProcessQuery(context.Background(), res, &l)
-	require.NotNil(t, queryErr)
+	require.Error(t, queryErr)
 }
 
 func TestToProtoMultiRoot(t *testing.T) {
@@ -4762,7 +4885,7 @@ func TestSchemaBlock5(t *testing.T) {
 
 const schemaStr = `
 name:string @index(term, exact) .
-alias:string @index(exact, term) .
+alias:string @index(exact, term, fulltext) .
 dob:date @index .
 film.film.initial_release_date:date @index .
 loc:geo @index .
