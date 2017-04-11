@@ -15,6 +15,10 @@ RUN apt-get update
 
 RUN apt-get -y --force-yes install wget curl tar
 
+RUN sudo apt-get install -y --force-yes software-properties-common python-software-properties && sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+RUN sudo apt-get update
+RUN sudo apt-get install -y --force-yes g++-4.9
+
 # Get embedded binaries from Dgraph.
 RUN curl https://get.dgraph.io | bash
 

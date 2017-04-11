@@ -1,6 +1,8 @@
 language: go
 go:
 - 1.8
+services:
+- docker
 dist: trusty
 sudo: required
 notifications:
@@ -30,6 +32,8 @@ cache:
   apt: true
   directories:
   - "$HOME/build"
+before_install:
+  - docker pull dgraph/dgraph
 install:
 - bash contrib/build-rocksdb.sh $HOME/build
 before_script:
